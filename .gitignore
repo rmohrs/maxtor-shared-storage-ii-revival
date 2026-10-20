@@ -1,0 +1,7 @@
+# never commit secrets
+*.cred
+.maxtor-cred
+id_rsa*
+!*.pub
+*.key
+*.tgz

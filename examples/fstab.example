@@ -1,0 +1,11 @@
+# /etc/fstab on the Linux / Proxmox host – one line (wrapped here only by your editor, keep it on ONE line)
+#
+# <MAXTOR_IP>  IP address of the Maxtor
+# <SHARE>      name of the share, e.g. backup
+# credentials  file with username=... / password=... (chmod 600), see docs/07-clients.md
+#
+# soft                     -> no endless hang when the Maxtor is off
+# x-systemd.automount      -> mount on first access instead of at boot (network may not be ready yet)
+# nofail                   -> boot continues even if the Maxtor is off
+
+//<MAXTOR_IP>/<SHARE> /mnt/maxtor cifs credentials=/root/.maxtor-cred,vers=1.0,sec=ntlmv2,nounix,noperm,uid=0,gid=0,forceuid,forcegid,file_mode=0770,dir_mode=0770,soft,_netdev,nofail,x-systemd.automount,x-systemd.mount-timeout=30 0 0

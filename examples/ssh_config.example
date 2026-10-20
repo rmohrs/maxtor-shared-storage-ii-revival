@@ -1,0 +1,14 @@
+# Append to ~/.ssh/config on your computer, then: chmod 600 ~/.ssh/config
+# Afterwards "ssh maxtor" is enough.
+#
+# The old dropbear on the Maxtor only supports outdated algorithms,
+# so they have to be allowed explicitly for this one host.
+
+Host maxtor
+    HostName <MAXTOR_IP>
+    User root
+    KexAlgorithms +diffie-hellman-group1-sha1
+    HostKeyAlgorithms +ssh-rsa
+    PubkeyAcceptedAlgorithms +ssh-rsa
+    Ciphers +aes128-cbc
+    IdentityFile ~/.ssh/id_rsa_maxtor
