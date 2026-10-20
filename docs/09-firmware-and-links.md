@@ -18,7 +18,8 @@ Our guides assume one working disk from which you copy the system ([guide 4](04-
 ## Links
 
 - **Open MSS-II wiki** (community firmware, partition layout, shell access): <https://scratchpad.fandom.com/wiki/Open_MSS-II>
-- **Firmware 3.1.28 description** (Data Recovery Salon): <https://www.datarecoverytools.co.uk> – search for "Maxtor Shared Storage II firmware"
+- **Firmware 3.1.28 download & release notes** (Data Recovery Salon, 2009): <https://www.datarecoverytools.co.uk/2009/08/04/firmware-update-v3128-for-maxtor-shared-storage-ii/>
+  This is a third-party mirror, not Seagate. The file should be `mss_v_3_1_28.bin` with exactly 16 MB (16,384 KB). If you have a known-good copy, please add its SHA-256 checksum here via pull request so others can verify their download.
 - **Japanese blog: replacing the internal HDD of a Shared Storage II** (2009, Blogger) – search for `Maxtor Shared Storage II 内蔵HDDを交換`
 - **Seagate product overview** (specs, model numbers): <https://www.seagate.com/au/en/support/kb/maxtor-shared-storage-ii-product-overview-2105en/>
 
