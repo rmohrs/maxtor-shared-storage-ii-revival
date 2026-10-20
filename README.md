@@ -1,1 +1,0 @@
-# maxtor-shared-storage-ii-revival
