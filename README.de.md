@@ -2,6 +2,8 @@
 
 Eine alte **Maxtor Shared Storage II** wieder in Betrieb nehmen: Platten prüfen, RAID 1 neu aufbauen, Dateisysteme reparieren, dauerhaften SSH-Zugang einrichten und die Box als Backup-Ziel für Linux bzw. Proxmox VE nutzen.
 
+Getestet mit **Firmware 3.1.28** (letzte Version der Shared Storage II) plus Community-Patch für SSH.
+
 Die ausführlichen Anleitungen sind auf Englisch (damit sie möglichst vielen helfen), die Befehle sind aber dieselben. Diese Seite fasst das Wichtigste auf Deutsch zusammen.
 
 > ⚠️ **Auf eigene Gefahr.** Du arbeitest als `root` auf einem 20 Jahre alten System. Ein falscher `dd`- oder `fdisk`-Befehl löscht Daten. Erst alles lesen, dann tippen.

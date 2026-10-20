@@ -21,6 +21,7 @@ These boxes were expensive back in 2006/2007 and are still perfectly usable as a
 
 | Item | Value |
 |---|---|
+| Tested firmware | **3.1.28** (last Shared Storage II release) + community SSH patch |
 | CPU | ARM926EJ-S (Marvell 88F5181, `MV-88fxx81`), ~200 MHz |
 | RAM | 64 MB (≈ 60 MB usable) |
 | Disks | 2 × 3.5" SATA |

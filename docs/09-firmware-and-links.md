@@ -9,7 +9,7 @@ Most of the original resources are gone. These are the ones we found still onlin
 | **3.1.28** (`mss_v_3_1_28.bin`, ~16 MB) | Reported to be the last official firmware of the Shared Storage II itself. Fixes for the extended US daylight saving time rules, DLNA/UPnP certification, wrong capacity display in "Simple View". |
 | **3.5.74** | Turns the box into a "Maxtor Central Axis" (Seagate's successor product). A Japanese blog author who replaced the internal disks deliberately stayed on 3.1.28 instead. |
 
-Check your current version in the web interface before you change anything. Our box ran on its existing firmware for this whole guide – none of the steps here requires a firmware update.
+**All guides in this repository were tested on firmware 3.1.28** (plus the community patch for SSH/telnet). Check your own version in the web interface before you change anything – on other versions paths and behaviour may differ. None of the steps here requires a firmware update.
 
 ## Installing the system on a completely blank disk
 
