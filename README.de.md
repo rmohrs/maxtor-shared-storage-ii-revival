@@ -27,6 +27,7 @@ Die ausführlichen Anleitungen sind auf Englisch (damit sie möglichst vielen he
 6. [Freigaben aufräumen](docs/06-shares.md)
 7. [Zugriff von Linux / macOS / Windows (SMB1)](docs/07-clients.md)
 8. [Backup-Ziel für Proxmox VE](docs/08-proxmox-backup.md)
+9. [Firmware & weiterführende Links](docs/09-firmware-and-links.md)
 
 Tipp für deutsche Mac-Tastaturen: `~` = **Wahltaste + N**, dann Leertaste. `/` = **Shift + 7**.
 

@@ -10,7 +10,7 @@ We used a **community-patched firmware** that adds:
 - a telnet daemon (`utelnetd`),
 - a service list in the web interface to switch these on and off.
 
-We cannot point you to a trusted download – search for *"Maxtor Shared Storage II firmware hack / dropbear"* and judge the source yourself. Flashing firmware is at your own risk.
+The community project for this was **Open MSS-II** – its wiki is still online at [scratchpad.fandom.com/wiki/Open_MSS-II](https://scratchpad.fandom.com/wiki/Open_MSS-II). We cannot vouch for any download linked from there; judge the source yourself. Flashing firmware is at your own risk. See also [Firmware & further reading](09-firmware-and-links.md).
 
 Once you have a root shell (telnet, netcat or SSH), the prompt looks like this:
 

@@ -55,6 +55,7 @@ Work through them in this order:
 6. [Clean up shares](docs/06-shares.md)
 7. [Use it from Linux / macOS (SMB1)](docs/07-clients.md)
 8. [Backup target for Proxmox VE](docs/08-proxmox-backup.md)
+9. [Firmware & further reading](docs/09-firmware-and-links.md)
 
 ## Scripts & examples
 
