@@ -15,6 +15,7 @@ Die ausführlichen Anleitungen sind auf Englisch (damit sie möglichst vielen he
 - **Nur die Datenpartition ist gespiegelt.** Das System (sda1, sda2, sda5) liegt nur auf der ersten Platte – einmal per `dd` auf die zweite kopieren.
 - **Die Firmware baut `/etc` bei jedem Start neu.** Ein mit `passwd` gesetztes Root-Passwort ist nach dem Neustart weg. Lösung: SSH-Schlüssel in `/root/.ssh`.
 - **Einmal `e2fsck` laufen lassen.** Die Konfigurationspartition sda2 war bei uns beschädigt (*aborted journal*).
+- **`poweroff` schaltet die Box nicht aus.** Es hält nur den Kernel an: Ping antwortet noch, SSH und Weboberfläche sind tot, die Taste reagiert nicht mehr – dann hilft nur der Stecker. Richtig ist die Front-Tasten-Aktion der Firmware: `/usr/sbin/mxotoolbox -f`. **Niemals `mxotoolbox -r`** (Reset-Taste: setzt das Admin-Passwort zurück und startet die Ersteinrichtung).
 - **Nur SMB1.** Linux-Mount mit `vers=1.0,sec=ntlmv2,nounix,noperm` und unbedingt `soft` + systemd-Automount, sonst hängen Prozesse auf dem Server, wenn die Maxtor aus ist.
 - **Kein Finder-Zugriff mit aktuellem macOS.** Die Box kündigt sich nicht als Dateiserver per Bonjour an, und SMB1 klappt mit aktuellem macOS ohnehin nicht. Zugriff über Linux oder Dateien per SSH kopieren.
 - **Kein Proxmox Backup Server** auf der Maxtor (smbd stürzt ab, ext3 erlaubt max. ~32.000 Unterordner) – einfache `vzdump`-Backups funktionieren gut.

@@ -66,6 +66,28 @@ Then reboot the box (`ssh maxtor reboot`), wait 2–3 minutes and run the test a
 
 Once SSH with a key works reliably, switch **telnet (`utelnetd`) off** in the service list of the web interface – it sends everything, including passwords, in clear text. Keep it on until the SSH key has survived a reboot, otherwise you may lock yourself out.
 
+## Switching the box off correctly
+
+**Do not use `poweroff` or `halt`.** They only stop the kernel – the box stays powered, answers ping, but SSH, web interface and even the power button are dead. Only pulling the plug helps then.
+
+The box has a small power controller that the firmware talks to. The front button is handled by the daemon `btnsd`, which calls:
+
+```sh
+/usr/sbin/mxotoolbox -f     # front button action: sync, stop all processes, reboot into "wait for button"
+```
+
+With the boot loader setting *Wait for button press* = ON (`mxoparam -a`), the box then really switches off (fan and button light off) and starts again when you press the front button. From your computer:
+
+```sh
+ssh maxtor /usr/sbin/mxotoolbox -f
+```
+
+The SSH connection drops – that is expected.
+
+> ⚠️ **Never run `mxotoolbox -r`.** That is the reset-button action: it sets `firsttime`, clears the admin password and starts the first-time setup.
+
+Useful, harmless: `mxoparam -a` shows the boot loader settings (U-Boot version, wait-for-button, watchdog, boot partition, boot fail counters).
+
 ## Never edit the wrong disk
 
 From here on, many commands write to raw disks. Make it a habit to read every `dd`, `fdisk` and `mdadm` line twice:

@@ -44,7 +44,7 @@ Many people (us included) only switch the old box on for backups. [`scripts/maxt
 2. shows the RAID status (needs SSH key, see below),
 3. triggers the automount and verifies the share is really mounted,
 4. backs up all VMs and containers, keeps the last 3 of each,
-5. unmounts and asks whether to power the Maxtor off.
+5. unmounts and asks whether to switch the Maxtor off (via the firmware's front-button action, then waits until it is really off).
 
 Install it on the Proxmox host:
 
@@ -90,6 +90,8 @@ Without it the script still backs up; it just skips the RAID status and you powe
 Never just pull the plug. An unclean shutdown makes the old md driver resync the whole mirror (about 2 hours) and ext3 has to replay its journal.
 
 ```sh
-umount /mnt/maxtor          # on the Proxmox host first
-ssh maxtor poweroff         # or via the web interface / power button
+umount /mnt/maxtor                     # on the Proxmox host first
+ssh maxtor /usr/sbin/mxotoolbox -f     # or the front button / web interface
 ```
+
+**Not** `ssh maxtor poweroff` – that only halts the kernel and leaves a box you can neither reach nor switch off without pulling the plug ([guide 1](01-shell-access.md#switching-the-box-off-correctly)). The script uses `mxotoolbox -f` and waits until the box stops answering ping.

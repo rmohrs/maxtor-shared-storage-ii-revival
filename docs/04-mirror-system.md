@@ -60,6 +60,19 @@ Expected: a recreated `lost+found` and a replayed journal on `sdb1`/`sdb5` (they
 
 This copy is a **snapshot**, it is not mirrored continuously. After important changes in the web interface (users, shares, network settings) repeat step 2 and `e2fsck -f -y /dev/sdb2`.
 
+## Boot partitions
+
+The boot loader (U-Boot "Maxtor v1.07") can start the system from four places. `mxoparam -h` lists them:
+
+| `mxoparam -q` | Boots from |
+|---|---|
+| 0 | drive 0, partition 1 (`sda1`, the default) |
+| 1 | drive 0, partition 2 (`sda2`) |
+| 2 | drive 1, partition 1 (`sdb1`) |
+| 3 | drive 1, partition 2 (`sdb2`) |
+
+`mxoparam -p` shows the current setting, `mxoparam -a` the boot fail counters. So partition 2 is a second system image, not only configuration – and the copy on the second disk is a real boot candidate. We have not switched the boot partition ourselves; only change it if you know you need to.
+
 ## If the first disk dies
 
 Power off, put the second disk into the **first bay** (where `sda` was) so it is detected as `sda` at boot, put a new disk into the second bay and follow [guide 3](03-raid-rebuild.md) again.

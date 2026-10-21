@@ -36,7 +36,7 @@ These boxes were expensive back in 2006/2007 and are still perfectly usable as a
 | Partition | Size | Use |
 |---|---|---|
 | `sdX1` | ~243 MB | Root file system (`root=/dev/sda1`) |
-| `sdX2` | ~243 MB | Firmware configuration / system copy, mounted at `/mnt/__mxo_sda2` |
+| `sdX2` | ~243 MB | Second system image (alternative boot partition) incl. firmware configuration, mounted at `/mnt/__mxo_sda2` |
 | `sdX3` | ~243 MB | Swap |
 | `sdX4` | rest | Extended partition |
 | `sdX5` | ~480 MB | `/tmp` |
@@ -75,6 +75,7 @@ All private values are placeholders: `<MAXTOR_IP>`, `<SHARE>`, `<SMB_USER>` etc.
 - **Run `e2fsck` once.** After years in a cupboard the ext3 file systems had never been checked; the config partition had a corrupted directory.
 - **SMB1 only.** Modern clients need `vers=1.0` and `sec=ntlmv2`. Plain file copies work fine, but heavy workloads (e.g. Proxmox Backup Server's chunk store) crash `smbd`. Use simple `vzdump` archives instead.
 - **No Finder access on current macOS.** The box does not even announce itself as a file server via Bonjour, and current macOS cannot connect via SMB1 anyway. Use Linux as the client or copy over SSH.
+- **`poweroff` does not switch the box off.** It only halts the kernel: ping still answers, SSH and web are dead, the power button no longer reacts – only pulling the plug helps. Use the firmware's front-button action instead: `/usr/sbin/mxotoolbox -f`. **Never run `mxotoolbox -r`** (reset button: resets the admin password and starts the first-time setup).
 - **Clients must not hang when the box is off.** Mount with `soft` and systemd automount, otherwise a powered-off Maxtor can freeze processes on your server.
 - **Realistic speed:** ~75 MB/s RAID resync, ~10 MB/s writing over SMB1.
 

@@ -15,10 +15,10 @@ mdadm /dev/md0 --remove /dev/sdb6
 ## 2. Swap the disk
 
 ```sh
-poweroff
+/usr/sbin/mxotoolbox -f     # NOT poweroff – see guide 1
 ```
 
-Wait until the box is off, swap the disk, power on. The box has no hot-swap – always change disks while it is powered off.
+Wait until the box is off (fan and button light off), swap the disk, press the front button. The box has no hot-swap – always change disks while it is powered off.
 
 ## 3. Check the new disk
 

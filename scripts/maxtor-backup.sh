@@ -80,11 +80,25 @@ if [ "$MODE" = "ask" ]; then
   case "$A" in y|Y|j|J) MODE="off" ;; esac
 fi
 if [ "$MODE" = "off" ]; then
+  # Do NOT use "poweroff": it only halts the kernel, the box stays on (ping answers,
+  # SSH/web are dead). The firmware's own way is the front-button action below.
   # shellcheck disable=SC2086
-  if ssh $SSHOPT root@"$MAXTOR" poweroff 2>/dev/null; then
-    echo "Maxtor is shutting down."
+  if ssh $SSHOPT root@"$MAXTOR" true 2>/dev/null; then
+    # shellcheck disable=SC2086
+    ssh $SSHOPT root@"$MAXTOR" 'sync; /usr/sbin/mxotoolbox -f' >/dev/null 2>&1
+    printf "Waiting for the Maxtor to switch off"
+    for _ in $(seq 1 24); do
+      sleep 5
+      if ! ping -c 1 -W 2 "$MAXTOR" >/dev/null 2>&1; then
+        echo; echo "Maxtor is off (press the front button to start it again)."
+        exit $RC
+      fi
+      printf "."
+    done
+    echo; echo "Maxtor still answers - switch it off via the web interface or the front button."
   else
-    echo "Could not power off via SSH - use the web interface or 'ssh maxtor poweroff'."
+    echo "No SSH key for this host on the Maxtor - switch it off via the web interface,"
+    echo "the front button or from a computer with key access: ssh maxtor /usr/sbin/mxotoolbox -f"
   fi
 fi
 
