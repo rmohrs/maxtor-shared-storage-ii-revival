@@ -8,7 +8,9 @@
 #
 # Usage:
 #   maxtor-backup                 back up, then ask whether to power the Maxtor off
-#   maxtor-backup --poweroff      back up, then power off without asking
+#   maxtor-backup --shutdown      back up, then switch the Maxtor off without asking
+#                                 (uses the firmware's front-button action, NOT the poweroff command;
+#                                  --poweroff is accepted as an old alias)
 #   maxtor-backup --keep-on       back up, leave the Maxtor running
 
 # ---- adjust these -----------------------------------------------------------
@@ -25,10 +27,10 @@ SSHOPT="-o BatchMode=yes -o ConnectTimeout=5 \
 
 MODE="ask"
 case "$1" in
-  --poweroff) MODE="off" ;;
+  --shutdown|--poweroff) MODE="off" ;;
   --keep-on)  MODE="on" ;;
   "")         ;;
-  *) echo "Usage: $0 [--poweroff|--keep-on]"; exit 2 ;;
+  *) echo "Usage: $0 [--shutdown|--keep-on]"; exit 2 ;;
 esac
 
 case "$MAXTOR" in
