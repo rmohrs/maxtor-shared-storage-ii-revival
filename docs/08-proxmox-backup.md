@@ -72,8 +72,8 @@ grep -E 'Finished Backup|ERROR|Backup OK' /root/maxtor-backup.log
 So the script can read the RAID status and power the box off, give the Proxmox host its own key:
 
 ```sh
-# on the Proxmox host
-ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa
+# on the Proxmox host - Proxmox usually has a key already; only create one if it is missing
+[ -f /root/.ssh/id_rsa.pub ] || ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa
 cat /root/.ssh/id_rsa.pub
 ```
 
