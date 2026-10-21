@@ -74,6 +74,7 @@ All private values are placeholders: `<MAXTOR_IP>`, `<SHARE>`, `<SMB_USER>` etc.
 - **The firmware rewrites `/etc` on every boot.** A root password you set with `passwd` is gone after a reboot. Use an SSH key in `/root/.ssh` instead – `/root` survives.
 - **Run `e2fsck` once.** After years in a cupboard the ext3 file systems had never been checked; the config partition had a corrupted directory.
 - **SMB1 only.** Modern clients need `vers=1.0` and `sec=ntlmv2`. Plain file copies work fine, but heavy workloads (e.g. Proxmox Backup Server's chunk store) crash `smbd`. Use simple `vzdump` archives instead.
+- **No Finder access on current macOS.** The box does not even announce itself as a file server via Bonjour, and current macOS cannot connect via SMB1 anyway. Use Linux as the client or copy over SSH.
 - **Clients must not hang when the box is off.** Mount with `soft` and systemd automount, otherwise a powered-off Maxtor can freeze processes on your server.
 - **Realistic speed:** ~75 MB/s RAID resync, ~10 MB/s writing over SMB1.
 

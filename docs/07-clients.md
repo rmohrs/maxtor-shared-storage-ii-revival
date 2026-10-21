@@ -49,9 +49,54 @@ ls /mnt/maxtor         # triggers the mount
 
 Finder → *Go* → *Connect to Server* → `smb://<MAXTOR_IP>`
 
-Recent macOS versions have very limited SMB1 support, so this may or may not work depending on your version. If Finder refuses, use a Linux machine (or a small VM/container) as the client.
+On a current macOS (tested October 2026) the connection **fails** with "Beim Verbinden mit dem Server ist ein Fehler aufgetreten" / "There was a problem connecting to the server". macOS no longer speaks SMB1 by default, and the box only supports the old NTLMv2 login without NTLMSSP. Allowing SMB1 in the Mac client is reversible and worth one try:
 
-The box announces itself via Bonjour (`mDNSResponder`). If it does not appear in the Finder sidebar, see the `bonjour.conf` note in [guide 5](05-repair-filesystems.md). Connecting by IP works regardless.
+```sh
+printf '[default]\nprotocol_vers_map=7\n' | sudo tee /etc/nsmb.conf   # allow SMB1/2/3
+sudo rm /etc/nsmb.conf                                              # undo
+```
+
+We could not confirm that this is enough. If Finder still refuses, use a Linux machine (or a small VM/container) as the client, or copy single files over SSH:
+
+```sh
+cat file.pdf | ssh maxtor 'cat > /share/<SHARE>/file.pdf'
+```
+
+(`cat` over SSH instead of `scp`: the old dropbear often does not understand the modern scp protocol.)
+
+### Why the box does not show up in the Finder sidebar
+
+The Finder lists network file servers that announce `_smb._tcp` via Bonjour. Check from a Mac what is announced in your network:
+
+```sh
+dns-sd -B _smb._tcp          # stop with Ctrl+C after a few seconds
+```
+
+The Maxtor runs `mDNSResponder -f /etc/bonjour.conf`, but that file only announces its own services (`_mssmaxtorinfo._udp`, `_mssmaxtorconfig._tcp` on port 4301 for the old Maxtor software) and the NetBIOS ports (`_netbios-ns._udp` 137, `_netbios-ssn._tcp` 139) – **no `_smb._tcp`**. Back then the box was found through Maxtor's own software, not through the Finder.
+
+You can add the missing entry (on the Maxtor):
+
+```sh
+cat >> /etc/bonjour.conf <<'EOF'
+
+Maxtor
+_smb._tcp.
+139
+val=val5
+EOF
+killall mDNSResponder
+cd /usr/bin && ./mDNSResponder -f /etc/bonjour.conf -b
+```
+
+The box then appears in the Finder under *Network* – but connecting still fails on macOS versions without SMB1 (see above). Because the firmware rewrites `/etc` on every boot, the entry is gone after the next reboot. That is deliberate in our setup: an entry you cannot open is not useful. If your Mac *can* connect, make it permanent with:
+
+```sh
+cp /etc/bonjour.conf /mnt/__mxo_sda2/etc/bonjour.conf
+cp /etc/bonjour.conf /etc/bonjour.conf-default
+sync
+```
+
+Bonjour is only needed for automatic discovery. Mounts by IP (Linux, Proxmox) and `ssh` work without it.
 
 ## Windows
 

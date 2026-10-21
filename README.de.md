@@ -16,6 +16,7 @@ Die ausführlichen Anleitungen sind auf Englisch (damit sie möglichst vielen he
 - **Die Firmware baut `/etc` bei jedem Start neu.** Ein mit `passwd` gesetztes Root-Passwort ist nach dem Neustart weg. Lösung: SSH-Schlüssel in `/root/.ssh`.
 - **Einmal `e2fsck` laufen lassen.** Die Konfigurationspartition sda2 war bei uns beschädigt (*aborted journal*).
 - **Nur SMB1.** Linux-Mount mit `vers=1.0,sec=ntlmv2,nounix,noperm` und unbedingt `soft` + systemd-Automount, sonst hängen Prozesse auf dem Server, wenn die Maxtor aus ist.
+- **Kein Finder-Zugriff mit aktuellem macOS.** Die Box kündigt sich nicht als Dateiserver per Bonjour an, und SMB1 klappt mit aktuellem macOS ohnehin nicht. Zugriff über Linux oder Dateien per SSH kopieren.
 - **Kein Proxmox Backup Server** auf der Maxtor (smbd stürzt ab, ext3 erlaubt max. ~32.000 Unterordner) – einfache `vzdump`-Backups funktionieren gut.
 - **Geschwindigkeit:** RAID-Resync ~75 MB/s, Schreiben per SMB1 ~10 MB/s.
 
