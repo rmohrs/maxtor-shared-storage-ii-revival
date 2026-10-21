@@ -59,13 +59,15 @@ maxtor-backup
 
 A full run of all guests easily takes more than half an hour. Example: a 33 GB Home Assistant/RaspberryMatic VM took about 10–12 minutes. The rates in the output jump around a lot – empty areas of a virtual disk are skipped at several hundred MB/s, real data goes at 10–20 MB/s. That is normal.
 
-The terminal must stay open, otherwise the backup is aborted. To run it unattended, start it in the background with a log file and power the box off yourself afterwards:
+Started in a normal terminal, the backup is aborted when you close the window. Run it as a transient systemd unit instead – it keeps running on its own and switches the box off at the end:
 
 ```sh
-nohup maxtor-backup --keep-on > /root/maxtor-backup.log 2>&1 &
-tail -f /root/maxtor-backup.log      # Ctrl+C only stops watching
-grep -E 'Finished Backup|ERROR|Backup OK' /root/maxtor-backup.log
+systemd-run --unit=maxtor-backup /usr/local/bin/maxtor-backup --shutdown
+journalctl -fu maxtor-backup        # watch; Ctrl+C only stops watching
+systemctl status maxtor-backup      # still running?
 ```
+
+`--shutdown` is required here, because the script cannot ask in the background. Switching off only works if the Proxmox host's SSH key is on the Maxtor **and** you have connected once by hand to accept the host key – a background job cannot answer the "Are you sure you want to continue connecting?" question.
 
 ### SSH key for the Proxmox host (optional)
 
