@@ -55,6 +55,18 @@ chmod +x /usr/local/bin/maxtor-backup
 maxtor-backup
 ```
 
+### How long does it take?
+
+A full run of all guests easily takes more than half an hour. Example: a 33 GB Home Assistant/RaspberryMatic VM took about 10–12 minutes. The rates in the output jump around a lot – empty areas of a virtual disk are skipped at several hundred MB/s, real data goes at 10–20 MB/s. That is normal.
+
+The terminal must stay open, otherwise the backup is aborted. To run it unattended, start it in the background with a log file and power the box off yourself afterwards:
+
+```sh
+nohup maxtor-backup --keep-on > /root/maxtor-backup.log 2>&1 &
+tail -f /root/maxtor-backup.log      # Ctrl+C only stops watching
+grep -E 'Finished Backup|ERROR|Backup OK' /root/maxtor-backup.log
+```
+
 ### SSH key for the Proxmox host (optional)
 
 So the script can read the RAID status and power the box off, give the Proxmox host its own key:
