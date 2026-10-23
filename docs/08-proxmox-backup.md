@@ -44,6 +44,7 @@ Many people (us included) only switch the old box on for backups. [`scripts/maxt
 2. shows the RAID status (needs SSH key, see below),
 3. triggers the automount and verifies the share is really mounted,
 4. backs up all VMs and containers, keeps the last 3 of each,
+   then copies any folders listed in `EXTRA_DIRS` (e.g. FRITZ!Box backups, [guide 10](10-fritzbox-backup.md)),
 5. unmounts and asks whether to switch the Maxtor off (via the firmware's front-button action, then waits until it is really off).
 
 Install it on the Proxmox host:

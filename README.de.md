@@ -19,6 +19,7 @@ Die ausführlichen Anleitungen sind auf Englisch (damit sie möglichst vielen he
 - **Nur SMB1.** Linux-Mount mit `vers=1.0,sec=ntlmv2,nounix,noperm` und unbedingt `soft` + systemd-Automount, sonst hängen Prozesse auf dem Server, wenn die Maxtor aus ist.
 - **Kein Finder-Zugriff mit aktuellem macOS.** Die Box kündigt sich nicht als Dateiserver per Bonjour an, und SMB1 klappt mit aktuellem macOS ohnehin nicht. Zugriff über Linux oder Dateien per SSH kopieren.
 - **Kein Proxmox Backup Server** auf der Maxtor (smbd stürzt ab, ext3 erlaubt max. ~32.000 Unterordner) – einfache `vzdump`-Backups funktionieren gut.
+- **Fritzbox mitsichern:** Die Fritzbox kann nicht selbst auf eine Netzfreigabe sichern. `scripts/fritzbox-backup.sh` holt die Konfiguration per TR-064 wöchentlich auf den Proxmox-Host, `maxtor-backup` kopiert sie mit `EXTRA_DIRS` beim nächsten Lauf auf die Maxtor. Export-Kennwort unbedingt separat aufbewahren – ohne lässt sich die Sicherung nicht einspielen.
 - **Geschwindigkeit:** RAID-Resync ~75 MB/s, Schreiben per SMB1 ~10 MB/s.
 
 ## Anleitungen
@@ -32,6 +33,7 @@ Die ausführlichen Anleitungen sind auf Englisch (damit sie möglichst vielen he
 7. [Zugriff von Linux / macOS / Windows (SMB1)](docs/07-clients.md)
 8. [Backup-Ziel für Proxmox VE](docs/08-proxmox-backup.md)
 9. [Firmware & weiterführende Links](docs/09-firmware-and-links.md)
+10. [Fritzbox-Konfiguration sichern](docs/10-fritzbox-backup.md)
 
 Tipp für deutsche Mac-Tastaturen: `~` = **Wahltaste + N**, dann Leertaste. `/` = **Shift + 7**.
 

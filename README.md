@@ -57,16 +57,18 @@ Work through them in this order:
 7. [Use it from Linux / macOS (SMB1)](docs/07-clients.md)
 8. [Backup target for Proxmox VE](docs/08-proxmox-backup.md)
 9. [Firmware & further reading](docs/09-firmware-and-links.md)
+10. [Back up the FRITZ!Box configuration](docs/10-fritzbox-backup.md)
 
 ## Scripts & examples
 
 | File | Purpose |
 |---|---|
-| [`scripts/maxtor-backup.sh`](scripts/maxtor-backup.sh) | Proxmox: back up all VMs/containers to the Maxtor, then optionally power it off |
+| [`scripts/maxtor-backup.sh`](scripts/maxtor-backup.sh) | Proxmox: back up all VMs/containers (plus optional extra folders) to the Maxtor, then optionally power it off |
+| [`scripts/fritzbox-backup.sh`](scripts/fritzbox-backup.sh) | Fetch the FRITZ!Box configuration via TR-064 into a local folder (picked up by `maxtor-backup`) |
 | [`examples/fstab.example`](examples/fstab.example) | Linux `/etc/fstab` line for the SMB1 share |
 | [`examples/ssh_config.example`](examples/ssh_config.example) | `~/.ssh/config` block for the old dropbear SSH server |
 
-All private values are placeholders: `<MAXTOR_IP>`, `<SHARE>`, `<SMB_USER>` etc. Replace them with your own.
+All private values are placeholders: `<MAXTOR_IP>`, `<SHARE>`, `<SMB_USER>`, `<FRITZBOX_IP>` etc. Replace them with your own.
 
 ## Lessons learned (TL;DR)
 

@@ -5,6 +5,7 @@
 #   - /etc/fstab entry for the share with systemd automount (examples/fstab.example)
 #   - Proxmox storage:  pvesm add dir maxtor-backup --path /mnt/maxtor --content backup --is_mountpoint yes
 #   - optional: SSH key of this host in /root/.ssh/authorized_keys on the Maxtor
+#   - optional: EXTRA_DIRS below, e.g. the FRITZ!Box backups (docs/10-fritzbox-backup.md)
 #
 # Usage:
 #   maxtor-backup                 back up, then ask whether to power the Maxtor off
@@ -18,6 +19,8 @@ MAXTOR="<MAXTOR_IP>"        # IP address of the Maxtor, e.g. 192.168.1.50
 MNT="/mnt/maxtor"           # mount point from /etc/fstab
 STORE="maxtor-backup"       # Proxmox storage name
 KEEP=3                      # backups to keep per VM/container
+EXTRA_DIRS=""               # local folders to copy along, space separated,
+                            # e.g. "/root/fritzbox-backups" -> $MNT/extra/fritzbox-backups
 # -----------------------------------------------------------------------------
 
 SSHOPT="-o BatchMode=yes -o ConnectTimeout=5 \
@@ -65,6 +68,24 @@ echo "== Backup running =="
 vzdump --all 1 --storage "$STORE" --mode snapshot --compress zstd \
        --prune-backups keep-last="$KEEP"
 RC=$?
+
+if [ -n "$EXTRA_DIRS" ]; then
+  echo "== Copying extra folders =="
+  for D in $EXTRA_DIRS; do
+    if [ -d "$D" ]; then
+      T="$MNT/extra/$(basename "$D")"
+      mkdir -p "$T"
+      # -u: only new/changed files; no -p, the SMB1 share cannot keep owners/modes
+      if cp -ru "$D"/. "$T"/; then
+        echo "$D -> $T ($(ls -1 "$T" | wc -l) files)"
+      else
+        echo "WARNING: copying $D failed"
+      fi
+    else
+      echo "WARNING: $D does not exist - skipped"
+    fi
+  done
+fi
 
 echo "== Archives on the Maxtor =="
 ls -lh "$MNT"/dump/*.zst 2>/dev/null | awk '{print $5, $9}'
