@@ -68,8 +68,13 @@ Work through them in this order:
 | [`scripts/fritzbox-backup.sh`](scripts/fritzbox-backup.sh) | Fetch the FRITZ!Box configuration via TR-064 into a local folder (picked up by `maxtor-backup`) |
 | [`examples/fstab.example`](examples/fstab.example) | Linux `/etc/fstab` line for the SMB1 share |
 | [`examples/ssh_config.example`](examples/ssh_config.example) | `~/.ssh/config` block for the old dropbear SSH server |
+| [`web/maxtor-menu.html`](web/maxtor-menu.html) | Command menu (German): every command from these guides, grouped by task, with copy buttons |
 
 All private values are placeholders: `<MAXTOR_IP>`, `<SHARE>`, `<SMB_USER>`, `<FRITZBOX_IP>` etc. Replace them with your own.
+
+### Command menu
+
+[`web/maxtor-menu.html`](web/maxtor-menu.html) is a single HTML page that collects every shell command from the guides, grouped by task (status, power, backup, mount, SMART, RAID, …). Download it and open it in any browser – no server needed, it runs nothing by itself. Enter your IP, share and mount point once; they are filled into every command. Each command shows where it runs (Mac, Maxtor, Proxmox) and how risky it is, and commands that can destroy data need two clicks to copy. The page is in German.
 
 ## Lessons learned (TL;DR)
 

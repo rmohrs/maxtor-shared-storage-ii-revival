@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Maxtor Befehlsmenü</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body { margin: 0; }
+[hidden] { display: none !important; }
+/* Layout: Geräte-Frontplatte oben (Einstellungen + Filter), darunter Aufgaben-Gruppen mit Befehlskarten; links eine Sprungleiste ab Desktop-Breite. */
+:root {
+  --bg: #eef0f2;          /* gebürstetes Aluminium */
+  --panel: #ffffff;
+  --sunk: #e3e7eb;
+  --fg: #1b2228;
+  --muted: #5c6873;
+  --line: #cfd5db;
+  --led: #1f6fd1;         /* blaue Front-LED der Shared Storage II */
+  --led-soft: #dbe8f8;
+  --code-bg: #141a20;
+  --code-fg: #dfe7ee;
+  --code-val: #8cc4ff;
+  --ok: #1d7a46;  --ok-soft: #dcf1e4;
+  --warn: #9a5b00; --warn-soft: #fbecd2;
+  --bad: #b3261e; --bad-soft: #fbe0de;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12171c; --panel: #1a2128; --sunk: #222a32; --fg: #e3e8ed; --muted: #95a1ad; --line: #2e3842;
+    --led: #5aa2ff; --led-soft: #1b2f47; --code-bg: #0b0f13; --code-fg: #dbe4ec; --code-val: #8cc4ff;
+    --ok: #5fd08f; --ok-soft: #173326; --warn: #f0b45a; --warn-soft: #3a2c14; --bad: #ff7b72; --bad-soft: #3d1c1a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12171c; --panel: #1a2128; --sunk: #222a32; --fg: #e3e8ed; --muted: #95a1ad; --line: #2e3842;
+  --led: #5aa2ff; --led-soft: #1b2f47; --code-bg: #0b0f13; --code-fg: #dbe4ec; --code-val: #8cc4ff;
+  --ok: #5fd08f; --ok-soft: #173326; --warn: #f0b45a; --warn-soft: #3a2c14; --bad: #ff7b72; --bad-soft: #3d1c1a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 15px/1.55 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 64px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 24px; }
+
+header.plate {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 20px 22px; display: grid; gap: 18px;
+}
+.brand { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.led { width: 12px; height: 12px; border-radius: 50%; background: var(--led); box-shadow: 0 0 10px var(--led); flex: none; }
+h1 { font: 800 clamp(1.5rem, 3.4vw, 2.1rem)/1.1 var(--f-display); font-stretch: 85%; letter-spacing: .01em; margin: 0; text-wrap: balance; }
+.model { font: 500 12px var(--f-mono); color: var(--muted); letter-spacing: .04em; }
+.lead { margin: 0; color: var(--muted); max-width: 70ch; }
+
+.settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font: 600 11px var(--f-body); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.field input {
+  font: 14px var(--f-mono); padding: 8px 10px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--sunk); color: var(--fg); width: 100%;
+}
+.field input:focus-visible, button:focus-visible, .chip:focus-visible, a:focus-visible { outline: 2px solid var(--led); outline-offset: 2px; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.search { flex: 1 1 220px; min-width: 0; }
+.search input { width: 100%; font: 14px var(--f-body); padding: 9px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--sunk); color: var(--fg); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  font: 500 13px var(--f-body); padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--fg);
+}
+.chip[aria-pressed="true"] { background: var(--led); border-color: var(--led); color: #fff; }
+.toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); cursor: pointer; }
+.toggle input { width: 16px; height: 16px; accent-color: var(--led); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+.main { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 28px; align-items: start; }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); display: grid; gap: 2px; font-size: 14px; }
+nav.toc a { color: var(--muted); text-decoration: none; padding: 5px 10px; border-radius: 6px; border-left: 2px solid transparent; }
+nav.toc a:hover { color: var(--fg); background: var(--sunk); }
+nav.toc a.danger { color: var(--bad); }
+nav.toc .count { float: right; font: 12px var(--f-mono); opacity: .7; }
+
+.sections { display: grid; gap: 36px; min-width: 0; }
+section h2 { font: 700 1.25rem/1.2 var(--f-display); font-stretch: 90%; margin: 0 0 4px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+section > p.intro { margin: 0 0 14px; color: var(--muted); max-width: 72ch; }
+.cards { display: grid; gap: 10px; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 8px; min-width: 0; }
+.card.risk-danger { border-left: 4px solid var(--bad); }
+.card.risk-change { border-left: 4px solid var(--warn); }
+.card-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; }
+.card h3 { font: 600 15px/1.3 var(--f-body); margin: 0; flex: 1 1 240px; min-width: 0; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font: 600 11px var(--f-body); letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+.where-mac { background: var(--sunk); color: var(--fg); }
+.where-maxtor { background: var(--led-soft); color: var(--led); }
+.where-proxmox { background: var(--sunk); color: var(--muted); border: 1px solid var(--line); }
+.risk-read-t { background: var(--ok-soft); color: var(--ok); }
+.risk-change-t { background: var(--warn-soft); color: var(--warn); }
+.risk-danger-t { background: var(--bad-soft); color: var(--bad); }
+.desc { margin: 0; color: var(--muted); font-size: 14px; max-width: 75ch; }
+
+.cmd { position: relative; background: var(--code-bg); border-radius: 6px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+.cmd pre { margin: 0; padding: 11px 14px; overflow-x: auto; font: 13.5px/1.55 var(--f-mono); color: var(--code-fg); white-space: pre; }
+.cmd .prompt { color: #6b7a88; user-select: none; }
+.cmd .v { color: var(--code-val); }
+.copy {
+  margin: 7px 7px 7px 0; font: 600 12px var(--f-body); padding: 5px 10px; border-radius: 5px; cursor: pointer;
+  background: #2a333c; color: #e3e8ed; border: 1px solid #3a4550; white-space: nowrap;
+}
+.copy:hover { background: #34404b; }
+.copy.done { background: #1d7a46; border-color: #1d7a46; color: #fff; }
+.copy.arm { background: #b3261e; border-color: #b3261e; color: #fff; }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+.note b { color: var(--fg); font-weight: 600; }
+.keys { font: 13px/1.6 var(--f-mono); background: var(--sunk); border-radius: 6px; padding: 10px 14px; margin: 0; overflow-x: auto; white-space: pre; }
+
+.never { background: var(--bad-soft); border: 1px solid var(--bad); border-radius: 8px; padding: 14px 18px; display: grid; gap: 10px; }
+.never h2 { color: var(--bad); }
+.never ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.never code { font: 13.5px var(--f-mono); background: var(--panel); padding: 1px 6px; border-radius: 4px; }
+
+.empty { color: var(--muted); padding: 24px; text-align: center; border: 1px dashed var(--line); border-radius: 8px; }
+footer { color: var(--muted); font-size: 13px; }
+footer a { color: var(--led); }
+
+@media (max-width: 820px) {
+  .main { grid-template-columns: minmax(0, 1fr); }
+  nav.toc { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="plate">
+    <div class="brand">
+      <span class="led" aria-hidden="true"></span>
+      <h1>Maxtor Befehlsmenü</h1>
+      <span class="model">SHARED STORAGE II · FW 3.1.28 · MSS:~ #</span>
+    </div>
+    <p class="lead">Alle Shell-Befehle aus dem Repository <a href="https://github.com/rmohrs/maxtor-shared-storage-ii-revival" style="color:var(--led)">maxtor-shared-storage-ii-revival</a>, nach Aufgaben sortiert. Deine Werte unten werden direkt in die Befehle eingesetzt. Kopieren, im Terminal einfügen, fertig. Diese Seite führt selbst nichts aus.</p>
+
+    <div class="settings" id="settings">
+      <div class="field"><label for="s-ip">Maxtor-IP</label><input id="s-ip" data-key="IP" value="192.168.1.50" spellcheck="false"></div>
+      <div class="field"><label for="s-share">Freigabe</label><input id="s-share" data-key="SHARE" value="backup" spellcheck="false"></div>
+      <div class="field"><label for="s-mnt">Mountpunkt (Proxmox)</label><input id="s-mnt" data-key="MNT" value="/mnt/maxtor" spellcheck="false"></div>
+      <div class="field"><label for="s-disk">Neue / zweite Platte</label><input id="s-disk" data-key="NEW" value="sdb" spellcheck="false"></div>
+      <div class="field"><label for="s-ct">Container-ID (Beispiel)</label><input id="s-ct" data-key="CT" value="101" spellcheck="false"></div>
+    </div>
+
+    <div class="controls">
+      <div class="search"><input id="q" type="search" placeholder="Suchen: raid, smart, ausschalten, backup …" aria-label="Befehle durchsuchen"></div>
+      <div class="chips" role="group" aria-label="Wo ausführen">
+        <button class="chip" data-where="all" aria-pressed="true">Alle</button>
+        <button class="chip" data-where="mac" aria-pressed="false">Mac</button>
+        <button class="chip" data-where="maxtor" aria-pressed="false">Maxtor</button>
+        <button class="chip" data-where="proxmox" aria-pressed="false">Proxmox</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="remote"> Maxtor-Befehle vom Mac aus (<code>ssh maxtor '…'</code>)</label>
+      <label class="toggle"><input type="checkbox" id="hide-danger"> Gefährliche ausblenden</label>
+    </div>
+
+    <div class="legend">
+      <span><span class="tag risk-read-t">liest</span> nur anzeigen, ändert nichts</span>
+      <span><span class="tag risk-change-t">ändert</span> schreibt Einstellungen oder schaltet</span>
+      <span><span class="tag risk-danger-t">gefährlich</span> kann Daten löschen, Kopieren braucht zwei Klicks</span>
+    </div>
+  </header>
+
+  <div class="main">
+    <nav class="toc" id="toc" aria-label="Aufgaben"></nav>
+    <div class="sections" id="sections"></div>
+  </div>
+
+  <footer>Quelle: <a href="https://github.com/rmohrs/maxtor-shared-storage-ii-revival">github.com/rmohrs/maxtor-shared-storage-ii-revival</a>. Getestet auf Firmware 3.1.28 mit Community-SSH-Patch. Arbeiten als root auf eigene Gefahr: jede <code>dd</code>-, <code>fdisk</code>- und <code>mdadm</code>-Zeile zweimal lesen.</footer>
+</div>
+
+<script>
+// where: mac | maxtor | proxmox · risk: read | change | danger · remote:false = interaktiv, nicht per ssh '…' umhüllbar
+const SECTIONS = [
+  { id: "status", title: "Status & Diagnose", intro: "Erster Blick nach dem Einschalten. Alles hier liest nur.", items: [
+    { t: "Ist die Maxtor erreichbar?", where: "mac", risk: "read", cmd: "ping -c 3 {IP}" },
+    { t: "Anmelden per SSH", where: "mac", risk: "read", cmd: "ssh maxtor", d: "Nutzt den Eintrag „Host maxtor“ in ~/.ssh/config mit dem Schlüssel id_rsa_maxtor." },
+    { t: "RAID-Zustand", where: "maxtor", risk: "read", cmd: "cat /proc/mdstat", d: "[2/2] [UU] = beide Spiegel in Ordnung. [2/1] [U_] = nur eine Platte aktiv. Ein Fortschrittsbalken bedeutet Resync." },
+    { t: "Erkannte Platten und Partitionen", where: "maxtor", risk: "read", cmd: "cat /proc/partitions" },
+    { t: "Belegter Speicher auf /share", where: "maxtor", risk: "read", cmd: "df -h /share" },
+    { t: "Ordner auf /share", where: "maxtor", risk: "read", cmd: "ls -la /share" },
+    { t: "Kernel-Meldungen zu den Platten", where: "maxtor", risk: "read", cmd: "dmesg | grep -i -E 'sd[ab]|scsi|ata'" },
+    { t: "Lese- und Plattenfehler suchen", where: "maxtor", risk: "read", cmd: "dmesg | grep -i -E 'error|sense|{NEW}'", d: "„sense key=0x3“ heißt: defekte Sektoren auf der Platte." },
+    { t: "Bootloader-Einstellungen", where: "maxtor", risk: "read", cmd: "mxoparam -a", d: "U-Boot-Version, Warten auf Taste, Watchdog, Bootpartition, Fehlstart-Zähler." },
+    { t: "Aktuelle Bootpartition", where: "maxtor", risk: "read", cmd: "mxoparam -p", d: "0 = sda1 (Standard), 1 = sda2, 2 = sdb1, 3 = sdb2. Nicht ändern, wenn du es nicht brauchst." },
+    { t: "Wann war der letzte Start?", where: "maxtor", risk: "read", cmd: "ls -la /", d: "Das Datum von etc ist der letzte Boot, weil die Firmware /etc bei jedem Start neu baut." },
+  ]},
+  { id: "power", title: "Ein- und Ausschalten", intro: "Ausschalten nur über die Firmware-Aktion der Fronttaste. poweroff und halt lassen die Box in einem Zustand hängen, aus dem nur der Stecker hilft.", items: [
+    { t: "Sauber ausschalten", where: "mac", risk: "change", cmd: "ssh maxtor /usr/sbin/mxotoolbox -f", d: "Die SSH-Verbindung bricht ab, das ist normal. Danach sind Lüfter und Tastenlicht aus. Einschalten mit der Fronttaste." },
+    { t: "Aushängen und ausschalten vom Proxmox-Host", where: "proxmox", risk: "change", cmd: "maxtor-off", d: "Hängt die Freigabe aus, macht den Automount wieder scharf, schaltet ab und wartet, bis kein Ping mehr kommt." },
+    { t: "Dasselbe von Hand auf Proxmox", where: "proxmox", risk: "change", cmd: "umount {MNT}\nsystemctl restart {UNIT}\nssh maxtor /usr/sbin/mxotoolbox -f" },
+    { t: "Neu starten", where: "mac", risk: "change", cmd: "ssh maxtor reboot", d: "Nach 2 bis 3 Minuten wieder erreichbar. Nicht während eines RAID-Resyncs, sonst beginnt er von vorn." },
+    { t: "Ist sie wirklich aus?", where: "mac", risk: "read", cmd: "ping -c 3 {IP}", d: "Keine Antwort = aus. Antwortet sie noch, aber SSH ist tot, wurde wahrscheinlich poweroff benutzt." },
+  ]},
+  { id: "backup", title: "Proxmox-Backup", intro: "Die Maxtor ist Ziel für einfache vzdump-Archive. Kein Proxmox Backup Server: smbd stürzt ab und ext3 erlaubt nur etwa 32.000 Unterordner.", items: [
+    { t: "Backup starten (fragt am Ende nach dem Ausschalten)", where: "proxmox", risk: "change", cmd: "maxtor-backup" },
+    { t: "Backup im Hintergrund, danach ausschalten", where: "proxmox", risk: "change", cmd: "systemd-run --unit=maxtor-backup /usr/local/bin/maxtor-backup --shutdown", d: "Läuft weiter, wenn du das Terminal schließt. Ein voller Lauf dauert gern über eine halbe Stunde." },
+    { t: "Backup-Fortschritt verfolgen", where: "proxmox", risk: "read", cmd: "journalctl -fu maxtor-backup", d: "Strg+C beendet nur das Zuschauen, nicht das Backup." },
+    { t: "Läuft das Backup noch?", where: "proxmox", risk: "read", cmd: "systemctl status maxtor-backup" },
+    { t: "Backup ohne Ausschalten", where: "proxmox", risk: "change", cmd: "maxtor-backup --keep-on" },
+    { t: "Einzelnes Test-Backup eines Containers", where: "proxmox", risk: "change", cmd: "vzdump {CT} --storage maxtor-backup --mode snapshot --compress zstd" },
+    { t: "Container und VMs auflisten", where: "proxmox", risk: "read", cmd: "pct list\nqm list" },
+    { t: "Speicher-Status in Proxmox", where: "proxmox", risk: "read", cmd: "pvesm status" },
+    { t: "Archive auf der Maxtor", where: "proxmox", risk: "read", cmd: "ls -lh {MNT}/dump/" },
+    { t: "Speicher in Proxmox anlegen (einmalig)", where: "proxmox", risk: "change", cmd: "pvesm add dir maxtor-backup --path {MNT} --content backup --is_mountpoint yes", d: "--is_mountpoint yes verhindert, dass Backups auf der lokalen Platte landen, wenn die Freigabe fehlt." },
+    { t: "Proxmox-Schlüssel anzeigen (für die Maxtor)", where: "proxmox", risk: "read", cmd: "cat /root/.ssh/id_rsa.pub", d: "Ohne diesen Schlüssel auf der Maxtor kann das Skript weder den RAID-Status lesen noch ausschalten." },
+    { t: "Proxmox-Schlüssel auf der Maxtor eintragen", where: "mac", risk: "change", cmd: "echo '<PASTE_PUBLIC_KEY>' | ssh maxtor 'cat >> /root/.ssh/authorized_keys'", d: "Die Zeile aus dem Befehl davor statt <PASTE_PUBLIC_KEY> einsetzen. Danach einmal von Proxmox aus „ssh root@IP“ ausführen und den Host-Schlüssel bestätigen." },
+  ]},
+  { id: "mount", title: "Freigabe einhängen", intro: "Die Box kann nur SMB1. Eingehängt wird per systemd-Automount beim ersten Zugriff, mit soft, damit nichts hängt, wenn die Maxtor aus ist.", items: [
+    { t: "Einhängen auslösen", where: "proxmox", risk: "read", cmd: "ls {MNT}" },
+    { t: "Ist die Freigabe eingehängt?", where: "proxmox", risk: "read", cmd: "findmnt {MNT}", d: "Muss cifs //{IP}/{SHARE} zeigen. Leere Ausgabe = nicht eingehängt." },
+    { t: "„directory is expected to be a mount point“ beheben", where: "proxmox", risk: "change", cmd: "systemctl daemon-reload\nsystemctl restart {UNIT}\nls {MNT} >/dev/null\nfindmnt {MNT}", d: "Passiert, wenn die Maxtor ausgeschaltet wurde, während die Freigabe noch eingehängt war." },
+    { t: "Status des Automounts", where: "proxmox", risk: "read", cmd: "systemctl status {UNIT}" },
+    { t: "Fehlersuche beim Einhängen", where: "proxmox", risk: "read", cmd: "mount -v {MNT}\ndmesg | tail", d: "-112 = Samba auf der Box noch nicht bereit (eine Minute warten). -13 = falsche Zugangsdaten. -113 = keine Route, Box aus." },
+    { t: "Aushängen", where: "proxmox", risk: "change", cmd: "umount {MNT}\nsystemctl restart {UNIT}" },
+    { t: "Test-Mount von Hand", where: "proxmox", risk: "change", cmd: "mkdir -p {MNT}\nmount -t cifs //{IP}/{SHARE} {MNT} \\\n  -o credentials=/root/.maxtor-cred,vers=1.0,sec=ntlmv2,nounix,noperm,uid=0,gid=0,soft" },
+    { t: "Zeile für /etc/fstab", where: "proxmox", risk: "change", cmd: "//{IP}/{SHARE} {MNT} cifs credentials=/root/.maxtor-cred,vers=1.0,sec=ntlmv2,nounix,noperm,uid=0,gid=0,forceuid,forcegid,file_mode=0770,dir_mode=0770,soft,_netdev,nofail,x-systemd.automount,x-systemd.mount-timeout=30 0 0", d: "In einer Zeile lassen. Danach: systemctl daemon-reload und den Automount neu starten." },
+  ]},
+  { id: "smart", title: "Platten prüfen (SMART)", intro: "smartctl ist auf der Box vorhanden. Jede Ersatzplatte vor dem Einbau ins RAID mit dem Langtest prüfen.", items: [
+    { t: "SMART-Werte erste Platte", where: "maxtor", risk: "read", cmd: "smartctl -a /dev/sda", d: "Wichtig: ID 5, 197, 198 sollen 0 sein. Große Rohwerte bei Raw_Read_Error_Rate und Seek_Error_Rate sind bei Seagate normal." },
+    { t: "SMART-Werte zweite Platte", where: "maxtor", risk: "read", cmd: "smartctl -a /dev/{NEW}" },
+    { t: "Partitionstabellen vergleichen", where: "maxtor", risk: "read", cmd: "fdisk -l /dev/sda\nfdisk -l /dev/{NEW}" },
+    { t: "Langtest starten", where: "maxtor", risk: "change", cmd: "smartctl -t long /dev/{NEW}", d: "Läuft in der Platte selbst, 1 bis 3 Stunden. Die Box darf dabei an bleiben." },
+    { t: "Fortschritt des Langtests", where: "maxtor", risk: "read", cmd: "smartctl -c /dev/{NEW} | grep -A1 'Self-test execution'" },
+    { t: "Ergebnis des Langtests", where: "maxtor", risk: "read", cmd: "smartctl -l selftest /dev/{NEW}", d: "Gut: „Completed … 00% … -“. Steht bei LBA_of_first_error etwas anderes als ein Strich, die Platte nicht verwenden." },
+  ]},
+  { id: "mac", title: "Dateien und Zugriff vom Mac", intro: "Der Finder kommt auf aktuellem macOS nicht an die Box. Einzelne Dateien gehen per SSH.", items: [
+    { t: "Datei auf die Maxtor kopieren", where: "mac", risk: "change", cmd: "cat datei.pdf | ssh maxtor 'cat > /share/{SHARE}/datei.pdf'", d: "cat statt scp, weil das alte dropbear das neue scp-Protokoll nicht versteht." },
+    { t: "Datei von der Maxtor holen", where: "mac", risk: "read", cmd: "ssh maxtor 'cat /share/{SHARE}/datei.pdf' > datei.pdf" },
+    { t: "Inhalt der Freigabe ansehen", where: "mac", risk: "read", cmd: "ssh maxtor 'ls -la /share/{SHARE}'" },
+    { t: "Welche Dateiserver kündigt Bonjour an?", where: "mac", risk: "read", cmd: "dns-sd -B _smb._tcp", d: "Nach ein paar Sekunden mit Strg+C beenden. Die Maxtor erscheint hier normalerweise nicht." },
+    { t: "SMB1 im Mac erlauben (Versuch)", where: "mac", risk: "change", cmd: "printf '[default]\\nprotocol_vers_map=7\\n' | sudo tee /etc/nsmb.conf", d: "Ob das reicht, ist nicht bestätigt. Rückgängig mit dem nächsten Befehl." },
+    { t: "SMB1-Einstellung wieder entfernen", where: "mac", risk: "change", cmd: "sudo rm /etc/nsmb.conf" },
+    { t: "Ohne ~/.ssh/config verbinden", where: "mac", risk: "read", cmd: "ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 \\\n    -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa \\\n    -oCiphers=+aes128-cbc root@{IP}" },
+    { t: "Schlüssel-Login testen", where: "mac", risk: "read", cmd: "ssh -o PasswordAuthentication=no maxtor echo ok", d: "Gibt „ok“ aus, wenn der Schlüssel funktioniert. Nach einem Neustart erneut testen." },
+    { t: "Firmware-Datei prüfen", where: "mac", risk: "read", cmd: "shasum -a 256 MSS_V_3_1_28.bin", d: "Erwartet: a3811b909f901167f32a1440c9c2d933f2948648381480b3bacb100727b6b2ef" },
+  ]},
+  { id: "shares", title: "Freigaben", intro: "Die Firmware erzeugt die Samba-Konfiguration selbst. Freigaben im Webinterface anlegen und löschen, nicht in der Datei.", items: [
+    { t: "Freigaben und ihre Pfade", where: "maxtor", risk: "read", cmd: "grep -i -E '^\\[|path' /usr/lib/smb.conf", d: "config wird intern benutzt, nicht anfassen. Offentlich lässt sich nicht löschen, nur die Freigabe aufheben." },
+    { t: "Fehlende Ordner neu anlegen", where: "maxtor", risk: "change", cmd: "mkdir -p /share/config /share/{SHARE}", d: "Nach einem neuen Dateisystem, damit das Webinterface alte Freigaben sauber löschen kann." },
+    { t: "Leeren Ordner entfernen", where: "maxtor", risk: "change", cmd: "rmdir /share/<NAME>" },
+  ]},
+  { id: "fritz", title: "FRITZ!Box-Sicherung", intro: "Der Proxmox-Host holt die Konfiguration per TR-064, maxtor-backup kopiert sie beim nächsten Lauf auf die Maxtor.", items: [
+    { t: "Sicherung jetzt holen", where: "proxmox", risk: "change", cmd: "fritzbox-backup", d: "Erwartet: „Saved: /root/fritzbox-backups/fritzbox_….export“. Das Export-Kennwort separat aufbewahren." },
+    { t: "Vorhandene Sicherungen", where: "proxmox", risk: "read", cmd: "ls -lh /root/fritzbox-backups" },
+    { t: "Wöchentlich automatisch (So 03:15)", where: "proxmox", risk: "change", cmd: "echo '15 3 * * 0 root /usr/local/bin/fritzbox-backup >/dev/null 2>&1' > /etc/cron.d/fritzbox-backup" },
+    { t: "Kopien auf der Maxtor", where: "proxmox", risk: "read", cmd: "ls -lh {MNT}/extra/fritzbox-backups", d: "Nur sichtbar, während die Freigabe eingehängt ist." },
+  ]},
+  { id: "repair", title: "Dateisysteme reparieren", intro: "Die Firmware ruft e2fsck nie selbst auf. Vorher alle Zugriffe auf die Freigabe beenden.", items: [
+    { t: "Konfigurationspartition vorher sichern", where: "maxtor", risk: "change", cmd: "tar czf /share/sda2-backup.tgz -C /mnt/__mxo_sda2 ." },
+    { t: "Konfigurationspartition sda2 prüfen", where: "maxtor", risk: "danger", cmd: "umount /mnt/__mxo_sda2\ne2fsck -f -y /dev/sda2\nmount /dev/sda2 /mnt/__mxo_sda2\ndmesg | tail -5" },
+    { t: "Datenpartition /share prüfen", where: "maxtor", risk: "danger", cmd: "umount /share\ne2fsck -f -y /dev/md0\nmount /dev/md0 /share", d: "Kein Backup und kein SMB-Zugriff darf gerade laufen." },
+    { t: "bonjour.conf auf die Konfigpartition zurücklegen", where: "maxtor", risk: "change", cmd: "cp /etc/bonjour.conf /mnt/__mxo_sda2/etc/\nsync" },
+  ]},
+  { id: "raid", title: "Platte tauschen & RAID neu aufbauen", danger: true, intro: "Annahme: sda ist die gesunde Platte, die neue heißt wie oben eingestellt. Vorher mit fdisk -l prüfen. Das RAID baut sich nicht von selbst auf.", items: [
+    { t: "Defekte Platte aus dem RAID nehmen", where: "maxtor", risk: "danger", cmd: "mdadm /dev/md0 --remove /dev/{NEW}6", d: "Nur nötig, wenn sie in /proc/mdstat noch mit (F) steht." },
+    { t: "Ausschalten zum Tausch", where: "maxtor", risk: "change", cmd: "/usr/sbin/mxotoolbox -f", d: "Kein Hot-Swap. Erst wenn Lüfter und Licht aus sind, Platte tauschen, dann Fronttaste drücken." },
+    { t: "Neue Platte wie die alte partitionieren", where: "maxtor", risk: "danger", remote: false, cmd: "fdisk /dev/{NEW}", d: "Interaktiv. Werte aus fdisk -l /dev/sda übernehmen, die Tabelle gilt für das 500-GB-Modell (60801 Zylinder).",
+      keys: "o                      neue leere Tabelle (alles auf der Platte weg!)\nn p 1    1     31\nn p 2    32    62\nn p 3    63    93\nn e 4    94    60801\nn l      94    154\nn l      155   60801\nt 3 82\nt 6 fd\na 1\np                      mit fdisk -l /dev/sda vergleichen\nw                      schreiben" },
+    { t: "Sieht der Kernel die neuen Partitionen?", where: "maxtor", risk: "read", cmd: "grep {NEW} /proc/partitions", d: "{NEW}1 bis {NEW}6 müssen erscheinen. Fehlt {NEW}6, einmal neu starten." },
+    { t: "Neue Platte ins RAID aufnehmen (Daten bleiben)", where: "maxtor", risk: "danger", cmd: "mdadm /dev/md0 --add /dev/{NEW}6\nmkswap /dev/{NEW}3\ncat /proc/mdstat", d: "Der Normalfall. Resync mit etwa 75 MB/s, bei 500 GB rund 1¾ Stunden. Währenddessen nicht neu starten." },
+    { t: "Resync beschleunigen", where: "maxtor", risk: "change", cmd: "echo 20000 > /proc/sys/dev/raid/speed_limit_min", d: "Gilt bis zum nächsten Neustart." },
+    { t: "Komplett neues, leeres RAID (löscht /share)", where: "maxtor", risk: "danger", cmd: "umount /share\nmdadm --stop /dev/md0\nmdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sda6 /dev/{NEW}6\nmke2fs -j /dev/md0\nmount /dev/md0 /share\nmkswap /dev/{NEW}3\ntune2fs -m 0 /dev/md0", d: "Alle Daten auf /share sind danach weg. Freigaben im Webinterface neu anlegen." },
+  ]},
+  { id: "mirror", title: "System auf die zweite Platte kopieren", danger: true, intro: "Das RAID schützt nur die Daten. Diese Schritte machen die zweite Platte zum vollständigen Ersatz. Erst nach dem Resync. if= ist die Quelle (sda), of= das Ziel.", items: [
+    { t: "Root-Partition sda1 kopieren", where: "maxtor", risk: "danger", cmd: "sync\nmount -o remount,ro / && echo \"RO OK\"\ndd if=/dev/sda1 of=/dev/{NEW}1 bs=64k\nmount -o remount,rw /", d: "„Device or resource busy“ beim remount ist normal. Der e2fsck-Schritt unten repariert die Kopie." },
+    { t: "Konfigurationspartition sda2 kopieren", where: "maxtor", risk: "danger", cmd: "umount /mnt/__mxo_sda2\ndd if=/dev/sda2 of=/dev/{NEW}2 bs=64k\nmount /dev/sda2 /mnt/__mxo_sda2", d: "Nach Änderungen im Webinterface (Benutzer, Freigaben, Netz) wiederholen." },
+    { t: "/tmp-Partition sda5 kopieren", where: "maxtor", risk: "danger", cmd: "sync\ndd if=/dev/sda5 of=/dev/{NEW}5 bs=64k" },
+    { t: "Bootcode im MBR kopieren", where: "maxtor", risk: "danger", cmd: "dd if=/dev/sda of=/dev/{NEW} bs=446 count=1", d: "Nur die ersten 446 Bytes, die Partitionstabelle bleibt unberührt." },
+    { t: "Kopien prüfen", where: "maxtor", risk: "change", cmd: "e2fsck -f -y /dev/{NEW}1\ne2fsck -f -y /dev/{NEW}2\ne2fsck -f -y /dev/{NEW}5" },
+  ]},
+];
+
+const NEVER = [
+  ["poweroff", " oder ", "halt", ": hält nur den Kernel an. Ping antwortet noch, SSH, Web und Taste sind tot, nur der Stecker hilft."],
+  ["mxotoolbox -r", "", "", ": Reset-Aktion. Setzt das Admin-Passwort zurück und startet die Ersteinrichtung."],
+  ["dd", " mit vertauschtem ", "if= / of=", ": überschreibt das laufende System auf sda."],
+  ["mdadm --create", "", "", " auf einem RAID mit Daten, die du behalten willst: legt ein neues, leeres Dateisystem an."],
+  ["passwd", "", "", " für root: ist nach dem nächsten Neustart weg, weil /etc neu gebaut wird. SSH-Schlüssel benutzen."],
+  ["Proxmox Backup Server", "", "", " als Datastore auf der Maxtor: smbd stürzt ab."],
+];
+
+const WHERE_LABEL = { mac: "Mac", maxtor: "Maxtor", proxmox: "Proxmox" };
+const RISK_LABEL = { read: "liest", change: "ändert", danger: "gefährlich" };
+const state = { where: "all", q: "", remote: false, hideDanger: false, vals: {} };
+
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const unitFor = mnt => mnt.replace(/^\/+|\/+$/g, "").replace(/\//g, "-") + ".automount";
+
+function values() {
+  const v = { ...state.vals };
+  v.UNIT = unitFor(v.MNT || "/mnt/maxtor");
+  return v;
+}
+function wrapRemote(item, cmd) {
+  if (!state.remote || item.where !== "maxtor" || item.remote === false) return cmd;
+  return "ssh maxtor '" + cmd.replace(/'/g, "'\\''") + "'";
+}
+function fill(text, v) { return text.replace(/\{(\w+)\}/g, (m, k) => (k in v && v[k] !== "") ? v[k] : m); }
+function fillHtml(text, v) {
+  return esc(text).replace(/\{(\w+)\}/g, (m, k) => (k in v && v[k] !== "") ? '<span class="v">' + esc(v[k]) + "</span>" : m);
+}
+function effectiveWhere(item) { return (state.remote && item.where === "maxtor" && item.remote !== false) ? "mac" : item.where; }
+
+function matches(item) {
+  if (state.hideDanger && item.risk === "danger") return false;
+  if (state.where !== "all" && item.where !== state.where && effectiveWhere(item) !== state.where) return false;
+  if (!state.q) return true;
+  const hay = (item.t + " " + (item.d || "") + " " + item.cmd + " " + WHERE_LABEL[item.where]).toLowerCase();
+  return state.q.split(/\s+/).every(w => hay.includes(w));
+}
+
+function render() {
+  const v = values();
+  const secEl = document.getElementById("sections");
+  const toc = document.getElementById("toc");
+  let html = "", tocHtml = "", total = 0;
+  for (const s of SECTIONS) {
+    const items = s.items.filter(matches);
+    if (!items.length) continue;
+    total += items.length;
+    tocHtml += `<a href="#${s.id}"${s.danger ? ' class="danger"' : ""}>${esc(s.title)}<span class="count">${items.length}</span></a>`;
+    html += `<section id="${s.id}"><h2>${esc(s.title)}</h2><p class="intro">${fillHtml(s.intro, v)}</p><div class="cards">`;
+    items.forEach(it => {
+      const idx = SECTIONS.indexOf(s) + ":" + s.items.indexOf(it);
+      const where = effectiveWhere(it);
+      const shown = wrapRemote(it, it.cmd);
+      const prompt = where === "maxtor" ? "MSS:~ # " : where === "proxmox" ? "pve # " : "$ ";
+      const lines = fillHtml(shown, v).split("\n").map((l, i) => (i === 0 || !/^\s/.test(l) ? `<span class="prompt">${prompt}</span>` : "") + l).join("\n");
+      html += `<article class="card risk-${it.risk}">
+        <div class="card-head"><h3>${esc(it.t)}</h3><div class="tags">
+          <span class="tag where-${where}">${WHERE_LABEL[where]}</span>
+          <span class="tag risk-${it.risk}-t">${RISK_LABEL[it.risk]}</span></div></div>
+        ${it.d ? `<p class="desc">${fillHtml(it.d, v)}</p>` : ""}
+        <div class="cmd"><pre>${lines}</pre><button class="copy" data-idx="${idx}" data-risk="${it.risk}">Kopieren</button></div>
+        ${it.keys ? `<p class="note"><b>Eingaben in fdisk</b> (nach jedem Wert Enter):</p><pre class="keys">${esc(it.keys)}</pre>` : ""}
+        ${state.remote && it.where === "maxtor" && it.remote === false ? `<p class="note">Interaktiv: erst <b>ssh maxtor</b>, dann diesen Befehl auf der Maxtor eingeben.</p>` : ""}
+      </article>`;
+    });
+    html += "</div></section>";
+  }
+  if (!total) html = `<div class="empty">Keine Befehle für „${esc(state.q)}“. Suchbegriff ändern oder den Filter „Alle“ wählen.</div>`;
+  if (!state.q && state.where === "all") {
+    html += `<section class="never" id="never"><h2>Nie ausführen</h2><ul>${NEVER.map(n => `<li><code>${esc(n[0])}</code>${esc(n[1])}${n[2] ? `<code>${esc(n[2])}</code>` : ""}${esc(n[3])}</li>`).join("")}</ul></section>`;
+    tocHtml += `<a href="#never" class="danger">Nie ausführen</a>`;
+  }
+  secEl.innerHTML = html;
+  toc.innerHTML = tocHtml;
+}
+
+function copyText(btn, text) {
+  const ok = () => { btn.textContent = "Kopiert"; btn.classList.add("done"); setTimeout(() => { btn.textContent = "Kopieren"; btn.classList.remove("done"); }, 1600); };
+  const fallback = () => {
+    const pre = btn.parentElement.querySelector("pre");
+    const r = document.createRange(); r.selectNodeContents(pre);
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    btn.textContent = "Markiert, ⌘C drücken";
+  };
+  try { navigator.clipboard.writeText(text).then(ok, fallback); } catch (e) { fallback(); }
+}
+
+document.getElementById("sections").addEventListener("click", e => {
+  const btn = e.target.closest(".copy");
+  if (!btn) return;
+  const [si, ii] = btn.dataset.idx.split(":").map(Number);
+  const item = SECTIONS[si].items[ii];
+  if (btn.dataset.risk === "danger" && !btn.classList.contains("arm")) {
+    btn.classList.add("arm"); btn.textContent = "Sicher? Nochmal klicken";
+    setTimeout(() => { if (btn.classList.contains("arm")) { btn.classList.remove("arm"); btn.textContent = "Kopieren"; } }, 4000);
+    return;
+  }
+  btn.classList.remove("arm");
+  copyText(btn, fill(wrapRemote(item, item.cmd), values()));
+});
+
+const STORE_KEY = "maxtor-menu-v1";
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify({ vals: state.vals, remote: state.remote, hideDanger: state.hideDanger })); } catch (e) {} }
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    if (!s) return;
+    Object.assign(state.vals, s.vals || {});
+    state.remote = !!s.remote; state.hideDanger = !!s.hideDanger;
+  } catch (e) {}
+}
+
+document.querySelectorAll("#settings input").forEach(inp => {
+  state.vals[inp.dataset.key] = inp.value.trim();
+  inp.addEventListener("input", () => { state.vals[inp.dataset.key] = inp.value.trim(); save(); render(); });
+});
+load();
+document.querySelectorAll("#settings input").forEach(inp => { if (state.vals[inp.dataset.key] != null) inp.value = state.vals[inp.dataset.key]; });
+const remoteEl = document.getElementById("remote"), dangerEl = document.getElementById("hide-danger");
+remoteEl.checked = state.remote; dangerEl.checked = state.hideDanger;
+remoteEl.addEventListener("change", () => { state.remote = remoteEl.checked; save(); render(); });
+dangerEl.addEventListener("change", () => { state.hideDanger = dangerEl.checked; save(); render(); });
+document.getElementById("q").addEventListener("input", e => { state.q = e.target.value.trim().toLowerCase(); render(); });
+document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => {
+  state.where = c.dataset.where;
+  document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", String(x === c)));
+  render();
+}));
+render();
+</script>
+</body>
+</html>

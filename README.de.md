@@ -36,6 +36,10 @@ Die ausführlichen Anleitungen sind auf Englisch (damit sie möglichst vielen he
 9. [Firmware & weiterführende Links](docs/09-firmware-and-links.md)
 10. [Fritzbox-Konfiguration sichern](docs/10-fritzbox-backup.md)
 
+## Befehlsmenü
+
+[`web/maxtor-menu.html`](web/maxtor-menu.html) fasst alle Shell-Befehle aus den Anleitungen auf einer Seite zusammen, nach Aufgaben sortiert (Status, Ein-/Ausschalten, Backup, Einhängen, SMART, RAID …). Herunterladen und im Browser öffnen, ein Server ist nicht nötig, die Seite führt selbst nichts aus. IP, Freigabe und Mountpunkt einmal eintragen, sie werden in alle Befehle eingesetzt. Zu jedem Befehl steht, wo er läuft (Mac, Maxtor, Proxmox) und wie riskant er ist. Befehle, die Daten löschen können, brauchen zum Kopieren zwei Klicks.
+
 Tipp für deutsche Mac-Tastaturen: `~` = **Wahltaste + N**, dann Leertaste. `/` = **Shift + 7**.
 
 Fragen, Korrekturen, Erfahrungen mit anderen Plattengrößen oder Firmware-Versionen: gern als Issue oder Pull Request.
