@@ -45,6 +45,22 @@ systemctl restart mnt-maxtor.automount
 ls /mnt/maxtor         # triggers the mount
 ```
 
+### "directory is expected to be a mount point but is not mounted"
+
+Proxmox reports this (or `findmnt /mnt/maxtor` shows nothing) although the Maxtor is on. The automount unit is no longer active – typically after the box was switched off by hand while the share was mounted. `ls /mnt/maxtor` then only looks into the empty local folder and mounts nothing.
+
+```sh
+systemctl status mnt-maxtor.automount   # "inactive" or "failed"
+systemctl daemon-reload
+systemctl restart mnt-maxtor.automount
+ls /mnt/maxtor >/dev/null
+findmnt /mnt/maxtor                     # must show cifs //<MAXTOR_IP>/<SHARE>
+```
+
+If it still does not mount: `mount -v /mnt/maxtor` and `dmesg | tail`. Error `-112` = Samba on the box is not ready yet (wait a minute after switching on), `-13` = wrong credentials.
+
+`maxtor-backup` and `maxtor-off` ([guide 8](08-proxmox-backup.md)) restart the automount unit after unmounting, so this should only happen when the box is switched off another way.
+
 ## macOS
 
 Finder → *Go* → *Connect to Server* → `smb://<MAXTOR_IP>`

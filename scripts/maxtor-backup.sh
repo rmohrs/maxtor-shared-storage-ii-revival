@@ -92,6 +92,9 @@ ls -lh "$MNT"/dump/*.zst 2>/dev/null | awk '{print $5, $9}'
 df -h "$MNT" | tail -1
 
 umount "$MNT" 2>/dev/null
+# Re-arm the automount, otherwise the next access only sees the empty local folder
+# ("directory is expected to be a mount point but is not mounted").
+systemctl restart "$(systemd-escape --path "$MNT").automount" 2>/dev/null
 if [ $RC -eq 0 ]; then
   echo "== Backup OK =="
 else

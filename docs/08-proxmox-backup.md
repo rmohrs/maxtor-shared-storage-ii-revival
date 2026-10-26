@@ -45,7 +45,7 @@ Many people (us included) only switch the old box on for backups. [`scripts/maxt
 3. triggers the automount and verifies the share is really mounted,
 4. backs up all VMs and containers, keeps the last 3 of each,
    then copies any folders listed in `EXTRA_DIRS` (e.g. FRITZ!Box backups, [guide 10](10-fritzbox-backup.md)),
-5. unmounts and asks whether to switch the Maxtor off (via the firmware's front-button action, then waits until it is really off).
+5. unmounts, re-arms the automount and asks whether to switch the Maxtor off (via the firmware's front-button action, then waits until it is really off).
 
 Install it on the Proxmox host:
 
@@ -92,9 +92,21 @@ Without it the script still backs up; it just skips the RAID status and you powe
 
 Never just pull the plug. An unclean shutdown makes the old md driver resync the whole mirror (about 2 hours) and ext3 has to replay its journal.
 
+If you switched the box on without `maxtor-backup` – e.g. to restore a backup – use [`scripts/maxtor-off.sh`](../scripts/maxtor-off.sh). It unmounts the share, restarts the automount unit (so the next mount works again, see [guide 7](07-clients.md#directory-is-expected-to-be-a-mount-point-but-is-not-mounted)), switches the box off with `mxotoolbox -f` and waits until it no longer answers ping. It needs the Proxmox host's SSH key on the Maxtor (see above).
+
 ```sh
-umount /mnt/maxtor                     # on the Proxmox host first
-ssh maxtor /usr/sbin/mxotoolbox -f     # or the front button / web interface
+cp scripts/maxtor-off.sh /usr/local/bin/maxtor-off
+chmod +x /usr/local/bin/maxtor-off
+# edit MAXTOR=<MAXTOR_IP> at the top
+maxtor-off
+```
+
+By hand:
+
+```sh
+umount /mnt/maxtor                         # on the Proxmox host first
+systemctl restart mnt-maxtor.automount     # re-arm the automount for next time
+ssh maxtor /usr/sbin/mxotoolbox -f         # or the front button / web interface
 ```
 
 **Not** `ssh maxtor poweroff` – that only halts the kernel and leaves a box you can neither reach nor switch off without pulling the plug ([guide 1](01-shell-access.md#switching-the-box-off-correctly)). The script uses `mxotoolbox -f` and waits until the box stops answering ping.
