@@ -90,6 +90,32 @@ echo '<PASTE_PUBLIC_KEY>' | ssh maxtor 'cat >> /root/.ssh/authorized_keys'
 
 Without it the script still backs up; it just skips the RAID status and you power the box off yourself.
 
+## The host's own configuration
+
+`vzdump` saves the guests, not the Proxmox host. After a hardware failure you would rebuild storage and network setup, `/etc/fstab`, these scripts, credentials, SSH keys and cron jobs from memory. So `maxtor-backup` also packs them into a small archive on every run (`HOST_BACKUP=1`, the default):
+
+```
+/mnt/maxtor/host/<hostname>_<date>.tar.gz      newest 10 kept (HOST_KEEP)
+```
+
+It contains the paths in `HOST_PATHS` (`/etc/pve`, `/etc/network`, `/etc/fstab`, `/etc/cron.d`, `/etc/systemd/system`, `/usr/local/bin`, `/root/.ssh`, the credential files, …) plus `info/`:
+
+- `info/inventory.txt` – `pveversion -v`, disks (`lsblk`), ZFS pools, LVM, storages, guest list, IP addresses, routes, USB and PCI devices, installed packages. That is the checklist for setting up new hardware, including which USB sticks were passed through.
+- `info/config.db` – consistent copy of the Proxmox cluster database (only if `sqlite3` is installed: `apt install sqlite3`).
+
+> ⚠️ The archive contains credentials and private SSH keys. The Maxtor share is only reachable with its password, but keep that in mind before you hand the disks to anyone.
+
+### After a hardware failure
+
+1. Install Proxmox VE on the new hardware with the **same hostname and IP**.
+2. Mount the Maxtor (fstab line from the archive or [`examples/fstab.example`](../examples/fstab.example)) and unpack the newest archive into a scratch folder – **not** over `/`:
+   ```sh
+   mkdir /root/old && tar -xzf /mnt/maxtor/host/<hostname>_<date>.tar.gz -C /root/old
+   less /root/old/info/inventory.txt
+   ```
+3. Copy back what you need: `usr/local/bin/*`, `root/.ssh`, the credential files, `etc/cron.d/*`, the Maxtor line from `etc/fstab`. Compare `etc/network/interfaces` and `etc/pve/storage.cfg` and take over bridges, ZFS pool and storages by hand – names of network cards and disks often differ on new hardware.
+4. Add the `maxtor-backup` storage, then restore the guests from the Maxtor (Datacenter → Storage `maxtor-backup` → Backups → Restore). Check USB/PCI passthrough against `inventory.txt` before you start them.
+
 ## Powering the box off safely
 
 Never just pull the plug. An unclean shutdown makes the old md driver resync the whole mirror (about 2 hours) and ext3 has to replay its journal.

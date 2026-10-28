@@ -63,7 +63,7 @@ Work through them in this order:
 
 | File | Purpose |
 |---|---|
-| [`scripts/maxtor-backup.sh`](scripts/maxtor-backup.sh) | Proxmox: back up the VMs/containers selected in a (disabled) Proxmox backup job (plus optional extra folders) to the Maxtor, then optionally power it off |
+| [`scripts/maxtor-backup.sh`](scripts/maxtor-backup.sh) | Proxmox: back up the VMs/containers selected in a (disabled) Proxmox backup job, the host's own configuration and optional extra folders to the Maxtor, then optionally power it off |
 | [`scripts/maxtor-off.sh`](scripts/maxtor-off.sh) | Proxmox: unmount the share, re-arm the automount and switch the Maxtor off cleanly (when it was on without a backup run) |
 | [`scripts/fritzbox-backup.sh`](scripts/fritzbox-backup.sh) | Fetch the FRITZ!Box configuration via TR-064 into a local folder (picked up by `maxtor-backup`) |
 | [`examples/fstab.example`](examples/fstab.example) | Linux `/etc/fstab` line for the SMB1 share |

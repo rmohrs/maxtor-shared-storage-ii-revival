@@ -26,6 +26,14 @@ JOB_ID=""                   # backup job to follow, e.g. "backup-1a2b3c4d";
                             # empty = the one job that writes to $STORE
 EXTRA_DIRS=""               # local folders to copy along, space separated,
                             # e.g. "/root/fritzbox-backups" -> $MNT/extra/fritzbox-backups
+HOST_BACKUP=1               # 1 = also save this host's own configuration (not covered by vzdump)
+HOST_KEEP=10                # host archives to keep, in $MNT/host/
+HOST_PATHS="/etc/pve /var/lib/pve-cluster /etc/network /etc/hosts /etc/hostname
+ /etc/resolv.conf /etc/fstab /etc/cron.d /etc/crontab /etc/systemd/system /etc/vzdump.conf
+ /etc/modprobe.d /etc/modules /etc/default/grub /etc/kernel /etc/apt/sources.list
+ /etc/apt/sources.list.d /etc/ssh /usr/local/bin /var/spool/cron/crontabs
+ /root/.ssh /root/.bashrc /root/.maxtor-cred /root/.fritz-cred"
+                            # missing paths are skipped silently
 # -----------------------------------------------------------------------------
 
 SSHOPT="-o BatchMode=yes -o ConnectTimeout=5 \
@@ -111,6 +119,49 @@ if [ -n "$EXTRA_DIRS" ]; then
       echo "WARNING: $D does not exist - skipped"
     fi
   done
+fi
+
+if [ "$HOST_BACKUP" = "1" ]; then
+  # vzdump saves the guests, but not the host: storage and network setup, fstab,
+  # these scripts, credentials, SSH keys, cron jobs. Rebuilding a failed host is
+  # much easier with them, so pack them into a small archive on every run.
+  echo "== Host configuration =="
+  H=$(hostname -s)
+  TMP=$(mktemp -d)
+  mkdir -p "$TMP/info"
+  # Proxmox cluster database, consistent copy if sqlite3 is available
+  if command -v sqlite3 >/dev/null 2>&1 && [ -f /var/lib/pve-cluster/config.db ]; then
+    sqlite3 /var/lib/pve-cluster/config.db ".backup '$TMP/info/config.db'" 2>/dev/null
+  fi
+  # inventory for rebuilding: versions, disks, pools, guests, network, USB devices
+  {
+    echo "### $(date -R)"
+    for C in "pveversion -v" "uname -a" "lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL,SERIAL" \
+             "zpool status" "zfs list" "pvs" "vgs" "lvs" "pvesm status" "qm list" "pct list" \
+             "ip -br addr" "ip route" "lsusb" "lspci -nn" "dpkg -l"; do
+      echo; echo "### $C"
+      sh -c "$C" 2>&1
+    done
+  } > "$TMP/info/inventory.txt"
+  P=""
+  for X in $HOST_PATHS; do [ -e "$X" ] && P="$P ${X#/}"; done   # relative to /
+  A="${H}_$(date +%F_%H%M).tar.gz"
+  # shellcheck disable=SC2086
+  if tar -czf "$TMP/$A" --ignore-failed-read --warning=no-file-changed \
+         --exclude=/var/lib/pve-cluster/config.db-wal --exclude=/var/lib/pve-cluster/config.db-shm \
+         -C / ${P# } -C "$TMP" info 2>/dev/null || [ -s "$TMP/$A" ]; then
+    mkdir -p "$MNT/host"
+    if cp "$TMP/$A" "$MNT/host/"; then
+      echo "$MNT/host/$A ($(du -h "$TMP/$A" | cut -f1))"
+      # keep the newest $HOST_KEEP archives of this host
+      ls -1 "$MNT/host/${H}"_*.tar.gz 2>/dev/null | sort -r | tail -n +"$((HOST_KEEP + 1))" | xargs -r rm --
+    else
+      echo "WARNING: copying the host archive to the Maxtor failed"
+    fi
+  else
+    echo "WARNING: creating the host archive failed"
+  fi
+  rm -rf "$TMP"
 fi
 
 echo "== Archives on the Maxtor =="

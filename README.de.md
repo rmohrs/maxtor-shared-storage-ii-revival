@@ -21,6 +21,7 @@ Die ausführlichen Anleitungen sind auf Englisch (damit sie möglichst vielen he
 - **Kein Finder-Zugriff mit aktuellem macOS.** Die Box kündigt sich nicht als Dateiserver per Bonjour an, und SMB1 klappt mit aktuellem macOS ohnehin nicht. Zugriff über Linux oder Dateien per SSH kopieren.
 - **Welche Gäste gesichert werden, legt der Proxmox-Backup-Job fest.** `maxtor-backup` liest die Auswahl aus dem Job für den Speicher `maxtor-backup` (*Rechenzentrum → Backup*). Der Job darf deaktiviert bleiben, er dient nur als Auswahlliste.
 - **Kein Proxmox Backup Server** auf der Maxtor (smbd stürzt ab, ext3 erlaubt max. ~32.000 Unterordner) – einfache `vzdump`-Backups funktionieren gut.
+- **Proxmox-Host mitsichern:** vzdump sichert nur die Gäste, nicht den Host. `maxtor-backup` packt deshalb bei jedem Lauf `/etc/pve`, Netzwerk, fstab, Skripte, Zugangsdaten, SSH-Schlüssel und Cron-Jobs plus eine Inventarliste (Platten, Pools, Gäste, USB-Geräte, Pakete) nach `/mnt/maxtor/host/` (die neuesten 10). Wiederherstellung nach Hardwareausfall: [Anleitung 8](docs/08-proxmox-backup.md#the-hosts-own-configuration).
 - **Fritzbox mitsichern:** Die Fritzbox kann nicht selbst auf eine Netzfreigabe sichern. `scripts/fritzbox-backup.sh` holt die Konfiguration per TR-064 wöchentlich auf den Proxmox-Host, `maxtor-backup` kopiert sie mit `EXTRA_DIRS` beim nächsten Lauf auf die Maxtor. Export-Kennwort unbedingt separat aufbewahren – ohne lässt sich die Sicherung nicht einspielen.
 - **Geschwindigkeit:** RAID-Resync ~75 MB/s, Schreiben per SMB1 ~10 MB/s.
 
