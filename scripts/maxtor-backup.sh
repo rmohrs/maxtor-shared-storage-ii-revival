@@ -1,9 +1,12 @@
 #!/bin/bash
-# maxtor-backup – back up all Proxmox VMs/containers to a Maxtor Shared Storage II
+# maxtor-backup – back up Proxmox VMs/containers to a Maxtor Shared Storage II
+#   The guests are taken from the Proxmox backup job that writes to $STORE
+#   (Datacenter -> Backup; the job may stay disabled, it only holds the selection).
 #
 # Requirements (see docs/07-clients.md and docs/08-proxmox-backup.md):
 #   - /etc/fstab entry for the share with systemd automount (examples/fstab.example)
 #   - Proxmox storage:  pvesm add dir maxtor-backup --path /mnt/maxtor --content backup --is_mountpoint yes
+#   - a backup job for that storage (can be disabled) with the guests to back up
 #   - optional: SSH key of this host in /root/.ssh/authorized_keys on the Maxtor
 #   - optional: EXTRA_DIRS below, e.g. the FRITZ!Box backups (docs/10-fritzbox-backup.md)
 #
@@ -19,6 +22,8 @@ MAXTOR="<MAXTOR_IP>"        # IP address of the Maxtor, e.g. 192.168.1.50
 MNT="/mnt/maxtor"           # mount point from /etc/fstab
 STORE="maxtor-backup"       # Proxmox storage name
 KEEP=3                      # backups to keep per VM/container
+JOB_ID=""                   # backup job to follow, e.g. "backup-1a2b3c4d";
+                            # empty = the one job that writes to $STORE
 EXTRA_DIRS=""               # local folders to copy along, space separated,
                             # e.g. "/root/fritzbox-backups" -> $MNT/extra/fritzbox-backups
 # -----------------------------------------------------------------------------
@@ -65,9 +70,30 @@ pvesm set "$STORE" --disable 0 2>/dev/null
 df -h "$MNT" | tail -1
 
 echo "== Backup running =="
-vzdump --all 1 --storage "$STORE" --mode snapshot --compress zstd \
-       --prune-backups keep-last="$KEEP"
-RC=$?
+# Guest selection from the Proxmox backup job (all / all except / pool / selected guests)
+RC=1
+SEL=$(pvesh get /cluster/backup --output-format json | perl -MJSON::PP -e '
+  my ($store, $id) = @ARGV;
+  my $jobs = decode_json(do { local $/; <STDIN> });
+  my @m = grep { $id ne "" ? $_->{id} eq $id : ($_->{storage} // "") eq $store } @$jobs;
+  die "no backup job " . ($id ne "" ? "with id $id" : "for storage $store") . "\n" unless @m;
+  die "several backup jobs for storage $store - set JOB_ID\n" if @m > 1;
+  my $j = $m[0];
+  if    ($j->{all})  { print "--all 1", ($j->{exclude} ? " --exclude $j->{exclude}" : "") }
+  elsif ($j->{pool}) { print "--pool $j->{pool}" }
+  elsif ($j->{vmid}) { (my $v = $j->{vmid}) =~ s/,/ /g; print $v }
+  else               { die "job $j->{id} selects no guests\n" }
+' "$STORE" "$JOB_ID") || SEL=""
+if [ -n "$SEL" ]; then
+  echo "Guests from backup job: $SEL"
+  # shellcheck disable=SC2086
+  vzdump $SEL --storage "$STORE" --mode snapshot --compress zstd \
+         --prune-backups keep-last="$KEEP"
+  RC=$?
+else
+  echo "ERROR: could not read the guest selection from the backup job - nothing backed up"
+  echo "       (Datacenter -> Backup: add a job for storage $STORE, it may stay disabled)"
+fi
 
 if [ -n "$EXTRA_DIRS" ]; then
   echo "== Copying extra folders =="

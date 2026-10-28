@@ -43,9 +43,11 @@ Many people (us included) only switch the old box on for backups. [`scripts/maxt
 1. checks that the Maxtor answers,
 2. shows the RAID status (needs SSH key, see below),
 3. triggers the automount and verifies the share is really mounted,
-4. backs up all VMs and containers, keeps the last 3 of each,
+4. backs up the guests selected in the Proxmox backup job for `maxtor-backup` (see below), keeps the last 3 of each,
    then copies any folders listed in `EXTRA_DIRS` (e.g. FRITZ!Box backups, [guide 10](10-fritzbox-backup.md)),
 5. unmounts, re-arms the automount and asks whether to switch the Maxtor off (via the firmware's front-button action, then waits until it is really off).
+
+**Which guests?** The script follows the backup job you set up in *Datacenter → Backup* for storage `maxtor-backup` – the same dialog as in 3a, but leave the job **disabled** (no box at the scheduled time anyway). Selection *All*, *All except* (exclude), *Pool* and individually ticked guests all work. Change the selection there, not in the script. If there is no such job, the script backs up nothing and says so; with several jobs on that storage set `JOB_ID` at the top of the script (`pvesh get /cluster/backup` lists the IDs).
 
 Install it on the Proxmox host:
 

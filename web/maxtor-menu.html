@@ -221,6 +221,7 @@ const SECTIONS = [
     { t: "Backup-Fortschritt verfolgen", where: "proxmox", risk: "read", cmd: "journalctl -fu maxtor-backup", d: "Strg+C beendet nur das Zuschauen, nicht das Backup." },
     { t: "Läuft das Backup noch?", where: "proxmox", risk: "read", cmd: "systemctl status maxtor-backup" },
     { t: "Backup ohne Ausschalten", where: "proxmox", risk: "change", cmd: "maxtor-backup --keep-on" },
+    { t: "Welche Gäste sichert das Skript?", where: "proxmox", risk: "read", cmd: "pvesh get /cluster/backup", d: "maxtor-backup folgt dem Backup-Job für den Speicher maxtor-backup (Spalte vmid, all oder exclude). Auswahl unter Rechenzentrum → Backup ändern; der Job darf deaktiviert bleiben." },
     { t: "Einzelnes Test-Backup eines Containers", where: "proxmox", risk: "change", cmd: "vzdump {CT} --storage maxtor-backup --mode snapshot --compress zstd" },
     { t: "Container und VMs auflisten", where: "proxmox", risk: "read", cmd: "pct list\nqm list" },
     { t: "Speicher-Status in Proxmox", where: "proxmox", risk: "read", cmd: "pvesm status" },
